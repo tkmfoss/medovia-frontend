@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Medovia - Online Pharmacy</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+
+        body {
+            display: flex;
+            background-color: #d9f1ff;
+        }
+
+        .sidebar {
+            width: 250px;
+            height: 100vh;
+            /* Make it take the full viewport height */
+            background-color: #03045E;
+            color: white;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            position: fixed;
+            /* Fix the sidebar to the left */
+            top: 0;
+            left: 0;
+            overflow-y: auto;
+            /* Enable scrolling inside the sidebar if needed */
+        }
+
+        .sidebar h2 {
+            color: #58d1ff;
+        }
+
+        .menu a {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            color: white;
+            text-decoration: none;
+            transition: 0.3s;
+        }
+
+        .menu a:hover {
+            background-color: #1a2f6e;
+            border-radius: 5px;
+        }
+
+        .main-content {
+            margin-left: 250px;
+            flex: 1;
+            padding: 35px;
+        }
+
+
+
+        .search-bar {
+            position: relative;
+            width: 400px;
+            height: 50px;
+            background: #90E0EF;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+        }
+
+        /* Input field */
+        .search-bar input {
+            width: 100%;
+            height: 100%;
+            border: none;
+            border-radius: 15px;
+            padding-left: 40px;
+            /* Space for the icon */
+            font-size: 18px;
+            background: transparent;
+            outline: none;
+            font-family: 'Poppins', sans-serif;
+            color: #03045E;
+        }
+
+        /* Placeholder styling */
+        .search-bar input::placeholder {
+            color: #03045E;
+        }
+
+        /* Search Icon inside Input */
+        .search-icon {
+            position: absolute;
+            left: 10px;
+            /* Adjust icon position */
+            font-size: 18px;
+            color: #03045E;
+        }
+
+
+        .categories {
+            display: flex;
+            justify-content: space-between;
+            background-color: #90E0EF;
+            width: 90%;
+            margin: 60px;
+        }
+
+        .categories img {
+            width: 300px;
+            border-radius: 10px;
+        }
+
+        .categories h3 {
+            text-align: center;
+            margin-top: 5px;
+            color: #03045E;
+            padding: 10px;
+        }
+
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 25px;
+        }
+
+        .product {
+            background: linear-gradient(to bottom, #90E0EF, #CAF0F8);
+            padding: 10px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .product img {
+            width: 250px;
+            margin-bottom: 10px;
+        }
+
+        .product h4 {
+            font-size: 16px;
+            margin-bottom: 5px;
+            color: #004265;
+        }
+
+        .product p {
+            font-size: 12px;
+            color: rgb(0, 0, 0);
+        }
+
+        .product .price {
+            font-size: 20px;
+            font-weight: bold;
+            color: #004265;
+            margin-top: 5px;
+        }
+
+        .product .cart {
+            margin-top: 10px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .add-to-cart {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 0;
+        }
+
+        .add-to-cart img {
+            width: 50px;
+            /* Adjust as needed */
+            height: 50px;
+        }
+
+
+        .logo {
+            width: 50px;
+            height: auto;
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .pressure {
+            display: flex;
+            flex-direction: column;
+            /* Stack elements vertically */
+            justify-content: flex-end;
+            /* Align content to the bottom */
+            align-items: end;
+            /* Keep the items centered */
+        }
+
+        .product-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-evenly;
+            gap: 10px;
+        }
+
+        .product-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .add-to-cart {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 0;
+        }
+
+        .add-to-cart img {
+            width: 40px;
+            /* Adjust size */
+            height: 40px;
+        }
+
+        .pack-info {
+            border: 2px solid black;
+            display: inline-block;
+            border-radius: 10px;
+            padding: 2px
+        }
+
+        /* Cart notification */
+        .cart-notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: #03045E;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 5px;
+            display: none;
+            z-index: 1000;
+        }
+
+        /* Category filter buttons */
+        .category-filters {
+            padding: 10px;
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            justify-content: space-evenly;
+            /* Distributes items evenly */
+        }
+
+
+        .category-btn {
+            background-color: #90E0EF;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            color: #03045E;
+            font-weight: bold;
+        }
+
+        .category-btn.active {
+            background-color: #03045E;
+            color: white;
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+</head>
+
+<body>
+    <!-- Cart notification -->
+    <div id="cart-notification" class="cart-notification">
+        Item added to cart!
+    </div>
+
+    <div class="sidebar">
+        <div class="logo-container">
+            <img src="static/images/Logo.png" alt="Medovia Logo" class="logo">
+            <h2>MEDOVIA<sup>+</sup></h2>
+        </div>
+        <div class="menu">
+            <a href="#">📊 Dashboard</a>
+            <a href="#">📦 Orders</a>
+            <a href="#">📋 Inventory</a>
+            <a href="#">👥 Customer</a>
+            <a href="#">💰 Sales</a>
+            <a href="#">🚚 Delivery</a>
+            <a href="#">🎁 Offers</a>
+            <a href="#">🔔 Notifications</a>
+            <a href="#">⚙️ Account</a>
+            <a href="#">🚪 Logout</a>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <!-- Search Bar Container -->
+        <div class="search-bar">
+            <i class="fas fa-search search-icon"></i>
+            <input type="text" id="search-input" placeholder="Search Medicine">
+        </div>
+
+        <!-- Category filters -->
+        <div class="category-filters">
+            <button class="category-btn active" data-category="all">All</button>
+            <button class="category-btn" data-category="painkillers">Painkillers</button>
+            <button class="category-btn" data-category="antibiotics">Antibiotics</button>
+            <button class="category-btn" data-category="equipment">Equipment</button>
+        </div>
+
+        <div class="categories">
+            <div>
+                <img src="static/images/Picture2.png" alt="Hard to find medicines">
+                <h3>Hard to find medicines</h3>
+            </div>
+            <div class="pressure">
+                <h3>Medical electronic Equipment</h3>
+                <img src="static/images/Picture3.png" alt="Medical electronic equipment">
+            </div>
+        </div>
+
+        <div id="product-grid" class="product-grid">
+            <!-- Products will be dynamically loaded here -->
+        </div>
+    </div>
+
+    <script>
+        // Product data
+        const products = [
+            {
+                id: 1,
+                name: "Paracetamol Tablets IP 500 mg",
+                category: "painkillers",
+                price: 12.00,
+                image: "static/images/Picture4.png",
+                pack: "Pack of 15 Tablets"
+            },
+            {
+                id: 2,
+                name: "Ibuprofen Tablets 400 mg",
+                category: "painkillers",
+                price: 15.00,
+                image: "static/images/Picture4.png",
+                pack: "Pack of 10 Tablets"
+            },
+            {
+                id: 3,
+                name: "Amoxicillin Capsules 500 mg",
+                category: "antibiotics",
+                price: 45.00,
+                image: "static/images/Picture4.png",
+                pack: "Pack of 6 Capsules"
+            },
+            {
+                id: 4,
+                name: "Azithromycin Tablets 250 mg",
+                category: "antibiotics",
+                price: 60.00,
+                image: "static/images/Picture4.png",
+                pack: "Pack of 5 Tablets"
+            },
+            {
+                id: 5,
+                name: "Aspirin Tablets 75 mg",
+                category: "painkillers",
+                price: 8.00,
+                image: "static/images/Picture4.png",
+                pack: "Pack of 14 Tablets"
+            },
+            {
+                id: 6,
+                name: "Ciprofloxacin Tablets 500 mg",
+                category: "antibiotics",
+                price: 65.00,
+                image: "static/images/Picture4.png",
+                pack: "Pack of 10 Tablets"
+            },
+            {
+                id: 7,
+                name: "Digital Thermometer",
+                category: "equipment",
+                price: 250.00,
+                image: "static/images/Picture4.png",
+                pack: "1 Unit"
+            },
+            {
+                id: 8,
+                name: "Blood Pressure Monitor",
+                category: "equipment",
+                price: 1200.00,
+                image: "static/images/Picture4.png",
+                pack: "1 Unit"
+            }
+        ];
+
+        const cart = [];
+
+        // Function to display products
+        function displayProducts(filteredProducts) {
+            const grid = document.getElementById("product-grid");
+            grid.innerHTML = "";
+
+            filteredProducts.forEach(product => {
+                const productDiv = document.createElement("div");
+                productDiv.classList.add("product");
+                productDiv.innerHTML = `
+                    <img src="${product.image}" alt="${product.name}">
+                    <h4>${product.name}</h4>
+                    <div class="product-container">
+                        <div class="product-info">
+                            <div class="pack-info">
+                                <p>${product.pack}</p>
+                            </div>
+                            <div class="price">₹${product.price.toFixed(2)}</div>
+                        </div>
+                        <button class="add-to-cart" onclick="addToCart(${product.id})">
+                            <img src="static/images/add-to-cart.png" alt="Add to Cart">
+                        </button>
+                    </div>
+                `;
+                grid.appendChild(productDiv);
+            });
+        }
+
+        // Function to search products
+        function searchProducts() {
+            const searchTerm = document.getElementById("search-input").value.toLowerCase();
+            const activeCategoryBtn = document.querySelector(".category-btn.active");
+            const activeCategory = activeCategoryBtn.getAttribute("data-category");
+
+            let filtered = products;
+
+            // First filter by category if not "all"
+            if (activeCategory !== "all") {
+                filtered = products.filter(product => product.category === activeCategory);
+            }
+
+            // Then filter by search term
+            if (searchTerm) {
+                filtered = filtered.filter(product =>
+                    product.name.toLowerCase().includes(searchTerm) ||
+                    product.category.toLowerCase().includes(searchTerm)
+                );
+            }
+
+            displayProducts(filtered);
+        }
+
+        // Function to filter by category
+        function filterCategory(category) {
+            // Update active button
+            document.querySelectorAll(".category-btn").forEach(btn => {
+                btn.classList.remove("active");
+            });
+            document.querySelector(`.category-btn[data-category="${category}"]`).classList.add("active");
+
+            // Filter products
+            const filtered = category === "all" ?
+                products :
+                products.filter(product => product.category === category);
+
+            displayProducts(filtered);
+        }
+
+        // Function to add item to cart
+        function addToCart(productId) {
+            const product = products.find(p => p.id === productId);
+            if (product) {
+                cart.push(product);
+                showCartNotification();
+            }
+        }
+
+        // Function to show cart notification
+        function showCartNotification() {
+            const notification = document.getElementById("cart-notification");
+            notification.style.display = "block";
+            setTimeout(() => {
+                notification.style.display = "none";
+            }, 2000);
+        }
+
+        // Event listeners
+        document.addEventListener("DOMContentLoaded", function () {
+            // Initial display of all products
+            displayProducts(products);
+
+            // Search input event listener
+            document.getElementById("search-input").addEventListener("input", searchProducts);
+
+            // Category filter buttons event listeners
+            document.querySelectorAll(".category-btn").forEach(button => {
+                button.addEventListener("click", function () {
+                    const category = this.getAttribute("data-category");
+                    filterCategory(category);
+                });
+            });
+        });
+    </script>
+</body>
+
+</html>
