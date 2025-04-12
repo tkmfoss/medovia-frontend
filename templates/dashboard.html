@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Medovia Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <style>
+        
+        /* General Layout */
+        .inventory-sections {
+            display: flex;
+            gap: -1rem;
+            padding: -1rem;
+            flex-wrap: wrap;
+        }
+
+        .section {
+            flex: 1;
+            background-color: #f9f9f9;
+            padding: 1.5rem;
+            border-radius: 15px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            min-width: 45%;
+        }
+
+        .section h2 {
+            font-size: 1.5rem;
+            color: #333;
+            margin-bottom: 1rem;
+            border-bottom: 2px solid #ddd;
+            padding-bottom: 0.5rem;
+        }
+
+        /* Product Grid */
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+            gap: 1.2rem;
+        }
+
+        /* Product Card */
+        .product-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+
+        .product-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 6px 14px rgba(0, 0, 0, 0.1);
+        }
+
+        .product-card img {
+            height: 100px;
+            width: 100px;
+            object-fit: contain;
+            margin-bottom: 0.8rem;
+        }
+
+        .product-info h4 {
+            font-size: 1rem;
+            margin: 0;
+            color: #249b6a;
+        }
+
+        .product-info p {
+            font-size: 0.9rem;
+            color: #666;
+            margin: 0.4rem 0;
+        }
+
+        .product-details {
+            font-size: 0.8rem;
+            color: #888;
+            display: flex;
+            flex-direction: column;
+            gap: 0.2rem;
+            margin-top: 0.5rem;
+        }
+        @media (max-width: 768px) {
+            .inventory-sections {
+                flex-direction: column;
+            }
+        }
+
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo">
+            <img src="{{ url_for('static', filename='Medovialogo.svg') }}" style="height: auto; width: 60%" alt="Medovia">
+        </div>
+        <div class="user-info">
+            <span>Welcome, Admin Name</span>
+            <input type="text" placeholder="Search...">
+            <div class="notifications">
+                <i class="fas fa-bell"></i>
+                <span class="notification-count">2 New</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="dashboard-container">
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-content"></div>
+        
+            <div class="sidebar-item active" onclick="location.href='/dashboard'">
+                <i class="fas fa-home"></i>
+                <span>Dashboard</span>
+            </div>
+            <div class="sidebar-item" onclick="location.href='/orders'">
+                <i class="fas fa-shopping-cart"></i>
+                <span>Orders</span>
+            </div>
+            <div class="sidebar-item" onclick="location.href='/inventory'">
+                <i class="fas fa-box"></i>
+                <span>Inventory</span>
+            </div>
+            <div class="sidebar-item" onclick="location.href='/customer'">
+                <i class="fas fa-users"></i>
+                <span>Customer</span>
+            </div>
+            <div class="sidebar-item" onclick="location.href='/sales'">
+                <i class="fas fa-dollar-sign"></i>
+                <span>Sales</span>
+            </div>
+            <div class="sidebar-item" onclick="location.href='/delivery'">
+                <i class="fas fa-truck"></i>
+                <span>Delivery</span>
+            </div>
+            <div class="sidebar-item" onclick="location.href='/offers'">
+                <i class="fas fa-tags"></i>
+                <span>Offers</span>
+            </div>
+            <div class="sidebar-item" onclick="location.href='/notification'">
+                <i class="fas fa-bell"></i>
+                <span>Notifications</span>
+            </div>
+            <div class="sidebar-item" onclick="location.href='/account'">
+                <i class="fas fa-cog"></i>
+                <span>Account</span>
+            </div>
+            <div class="sidebar-item" onclick="location.href='/'">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Logout</span>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="dashboard-stats">
+                <div class="stat-card">
+                    <i class="fas fa-chart-line"></i>
+                    <div class="stat-details">
+                        <h3>Sales</h3>
+                        <p>
+                            <span id="sales-count">0</span> 
+                            <span class="trend positive" id="sales-change">+0%</span>
+                        </p>
+                        <small>Since last week</small>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <i class="fas fa-shopping-basket"></i>
+                    <div class="stat-details">
+                        <h3>Orders</h3>
+                        <p>
+                            <span id="orders-count">0</span>
+                            <span class="trend positive" id="orders-change">+0%</span>
+                        </p>
+                        <small>Since last week</small>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <i class="fas fa-user-friends"></i>
+                    <div class="stat-details">
+                        <h3>Customers</h3>
+                        <p>
+                            <span id="customers-count">0</span>
+                            <span class="trend positive" id="customers-change">+0%</span>
+                        </p>
+                        <small>Since last week</small>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <i class="fas fa-dollar-sign"></i>
+                    <div class="stat-details">
+                        <h3>Profits</h3>
+                        <p>
+                            $<span id="profits-count">0</span>
+                            <span class="trend positive" id="profits-change">+0%</span>
+                        </p>
+                        <small>Since last week</small>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="inventory-sections">
+                <div class="section out-of-stock">
+                  <h2>Out of Stock</h2>
+                  <div class="product-grid" id="out-of-stock-list">
+                    <!-- JS will dynamically insert product cards here -->
+                  </div>
+                </div>
+              
+                <div class="section expires-soon">
+                  <h2>Expires Soon</h2>
+                  <div class="product-grid" id="expiring-soon-list">
+                    <!-- JS will dynamically insert product cards here -->
+                  </div>
+                </div>
+              </div>              
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            fetch('/api/dashboard-data')
+                .then(response => response.json())
+                .then(data => {
+                    // Update metrics
+                    document.getElementById("sales-count").textContent = data.sales.value;
+                    document.getElementById("sales-change").textContent = data.sales.change;
+            
+                    document.getElementById("orders-count").textContent = data.orders.value;
+                    document.getElementById("orders-change").textContent = data.orders.change;
+            
+                    document.getElementById("customers-count").textContent = data.customers.value;
+                    document.getElementById("customers-change").textContent = data.customers.change;
+            
+                    document.getElementById("profits-count").textContent = "$" + data.profits.value;
+                    document.getElementById("profits-change").textContent = data.profits.change;
+            
+                    // Dynamically create and append product cards for Out of Stock
+                    const outStockContainer = document.getElementById("out-of-stock-list");
+                    data.out_of_stock.forEach(item => {
+                        outStockContainer.appendChild(createProductCard(item));
+                    });
+            
+                    // Dynamically create and append product cards for Expiring Soon
+                    const expiringSoonContainer = document.getElementById("expiring-soon-list");
+                    data.expiring_soon.forEach(item => {
+                        expiringSoonContainer.appendChild(createProductCard(item));
+                    });
+                })
+                .catch(error => console.error('Error fetching data:', error));
+        });
+        
+        // Function to create product card HTML element
+        function createProductCard({ name, brand, batch, expiry, image }) {
+            const card = document.createElement("div");
+            card.classList.add("product-card");
+            card.onclick = () => toggleProductDetails(card);
+        
+            const img = document.createElement("img");
+            img.src = image;
+            img.alt = "Medicine";
+        
+            const productInfo = document.createElement("div");
+            productInfo.classList.add("product-info");
+        
+            const title = document.createElement("h4");
+            title.textContent = name;
+        
+            const description = document.createElement("p");
+            description.textContent = brand;
+        
+            const details = document.createElement("div");
+            details.classList.add("product-details");
+        
+            const batchNo = document.createElement("span");
+            batchNo.textContent = `Batch No: ${batch}`;
+        
+            const expiryDate = document.createElement("span");
+            expiryDate.textContent = `Expires On: ${expiry}`;
+        
+            details.appendChild(batchNo);
+            details.appendChild(expiryDate);
+        
+            productInfo.appendChild(title);
+            productInfo.appendChild(description);
+            productInfo.appendChild(details);
+        
+            card.appendChild(img);
+            card.appendChild(productInfo);
+        
+            return card;
+        }
+        
+        // Dummy toggle function for the product card (example)
+        function toggleProductDetails(card) {
+            // You can toggle a detailed view or some state here
+            console.log("Product card clicked:", card);
+        }
+        
+    </script>
+</body>
+</html>
