@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inventory - Medovia</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary-blue: #1E40AF;
+            --light-blue: #93C5FD;
+            --background-gray: #F3F4F6;
+            --text-dark: #1F2937;
+            --white: #FFFFFF;
+            --red: #DC2626;
+            --yellow: #EAB308;
+        }
+        
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: var(--background-gray);
+            margin: 0;
+            padding: 0;
+        }
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            background-color: var(--white);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .header .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary-blue);
+        }
+        
+        .dashboard-container {
+            display: flex;
+        }
+        
+        .sidebar {
+            width: 250px;
+            background-color: var(--primary-blue);
+            color: white;
+            height: 100vh;
+            padding-top: 20px;
+            position: fixed;
+            transition: width 0.3s ease;
+            overflow: hidden;
+        }
+        
+        .sidebar.collapsed {
+            width: 80px;
+        }
+        
+        .sidebar-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        
+        .sidebar-item i {
+            margin-right: 15px;
+        }
+        
+        .sidebar-item:hover {
+            background-color: rgba(255,255,255,0.1);
+        }
+        
+        .sidebar.collapsed .sidebar-item span {
+            display: none;
+        }
+        
+        .main-content {
+            margin-left: 260px;
+            padding: 20px;
+            transition: margin-left 0.3s ease;
+            flex-grow: 1;
+        }
+        
+        .sidebar.collapsed + .main-content {
+            margin-left: 100px;
+        }
+        
+        .inventory-stats {
+            display: grid;
+            grid-template-columns: 10fr; /* Initially 1 column for "Total Items" */
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .stat-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr; /* Two columns for the second row */
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        /* Update this to make Total Items span the entire row */
+        .stat-card.total-items {
+            grid-column: span 2; /* This makes it span across both columns in the first row */
+        }
+        
+        .stat-card {
+            background-color: var(--white);
+            border-radius: 8px;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        .stat-card i {
+            font-size: 2rem;
+            margin-right: 15px;
+            color: var(--primary-blue);
+        }
+        
+        .status.out-of-stock {
+            color: var(--red);
+            font-weight: bold;
+        }
+        
+        .status.low-stock {
+            color: var(--yellow);
+            font-weight: bold;
+        }
+        
+        #low-stock-list li,
+        #out-stock-list li {
+            list-style: none;
+            margin: 6px 0;
+        }
+        
+        #out-stock-list img,
+        #low-stock-list img {
+            width: 60px;
+            height: 80px;
+            object-fit: cover;
+            margin-right: 8px;
+            border-radius: 4px;
+            vertical-align: middle;
+        }
+        
+        .inventory-item-link {
+            text-decoration: none; /* Remove default underline */
+            display: block; /* Make the whole block clickable */
+            margin: 10px 0; /* Add some space between items */
+        }
+        
+        .inventory-item {
+            display: flex;
+            align-items: center; /* Align items vertically */
+            background-color: #f8f0e8; /* Background color for the item */
+            padding: 10px;
+            border-radius: 8px; /* Rounded corners */
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Add a subtle shadow */
+            transition: transform 0.3s ease-in-out; /* Smooth hover effect */
+        }
+        
+        .inventory-item:hover {
+            transform: translateY(-5px); /* Lift the item on hover */
+        }
+        
+        .inventory-item-img {
+            width: 50px; /* Set a fixed width for the image */
+            height: 50px; /* Set a fixed height for the image */
+            object-fit: cover; /* Ensure image covers the area */
+            margin-right: 10px; /* Space between image and text */
+            border-radius: 50%; /* Make the image round */
+        }
+        
+        .inventory-item-name {
+            font-size: 1.1em;
+            font-weight: bold;
+            color: #249b6a; /* Use your color */
+            text-transform: capitalize; /* Capitalize the name */
+        }
+        
+        #low-stock-list, #out-stock-list {
+            margin-top: 20px;
+        }
+        
+        .search-results {
+            margin-top: 20px;
+            padding: 20px;
+            background-color: var(--white);
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .stat-card {
+            background:rgb(255, 255, 255);
+            border-radius: 10px;
+            padding: 10px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo">
+            <img src="{{ url_for('static', filename='Medovialogo.svg') }}" style="height: auto; width: 60%" alt="Medovia">
+        </div>
+        <div class="user-info">
+            <span>Medicines</span>
+            <input type="text" id="search-input" placeholder="Search Medicine...">
+            <div class="notifications">
+                <i class="fas fa-bell"></i>
+                <span class="notification-count">3 New</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="dashboard-container">
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-content"></div>
+
+            <div class="sidebar-item active" onclick="location.href='/dashboard'">
+                <i class="fas fa-home"></i>
+                <span>Dashboard</span>
+            </div>
+            <div class="sidebar-item" onclick="location.href='/orders'">
+                <i class="fas fa-shopping-cart"></i>
+                <span>Orders</span>
+            </div>
+            <div class="sidebar-item" onclick="location.href='/inventory'">
+                <i class="fas fa-box"></i>
+                <span>Inventory</span>
+            </div>
+            <div class="sidebar-item" onclick="location.href='/customer'">
+                <i class="fas fa-users"></i>
+                <span>Customer</span>
+            </div>
+            <div class="sidebar-item" onclick="location.href='/sales'">
+                <i class="fas fa-dollar-sign"></i>
+                <span>Sales</span>
+            </div>
+            <div class="sidebar-item" onclick="location.href='/delivery'">
+                <i class="fas fa-truck"></i>
+                <span>Delivery</span>
+            </div>
+            <div class="sidebar-item" onclick="location.href='/offers'">
+                <i class="fas fa-tags"></i>
+                <span>Offers</span>
+            </div>
+            <div class="sidebar-item" onclick="location.href='/notification'">
+                <i class="fas fa-bell"></i>
+                <span>Notifications</span>
+            </div>
+            <div class="sidebar-item" onclick="location.href='/account'">
+                <i class="fas fa-cog"></i>
+                <span>Account</span>
+            </div>
+            <div class="sidebar-item" onclick="location.href='/'">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Logout</span>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <h2>Inventory Overview</h2>
+            <div class="inventory-stats">
+                <!-- First row: Total Items -->
+                <div class="stat-row">
+                    <div class="stat-card">
+                        <i class="fas fa-boxes"></i>
+                        <div>
+                            <h3>Total Items</h3>
+                            <p id="total-items">0</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Second row: Low Stock (Column 1) and Out of Stock (Column 2) -->
+                <div class="stat-row">
+                    <div class="stat-card">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <div>
+                            <h3>Low Stock</h3>
+                            <p id="low-stock-count">0</p>
+                            <ul id="low-stock-list"></ul>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fas fa-times-circle"></i>
+                        <div>
+                            <h3>Out of Stock</h3>
+                            <p id="out-stock-count">0</p>
+                            <ul id="out-stock-list"></ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <script src="https://kit.fontawesome.com/a076d05399.js"></script>
+        <script src="{{ url_for('static', filename='script.js') }}"></script>
+        <script>
+            window.addEventListener('DOMContentLoaded', () => {
+                let inventoryData = [];
+            
+                // Fetch inventory data
+                fetch('/api/inventory')
+                    .then(res => res.json())
+                    .then(data => {
+                        inventoryData = data.items || [];  // Use data.items if backend returns it that way
+                        document.getElementById('total-items').textContent = data.total;
+                        document.getElementById('low-stock-count').textContent = data.low_stock.length;
+                        document.getElementById('out-stock-count').textContent = data.out_of_stock.length;
+            
+                        populateStockList(data.low_stock, 'low-stock-list');
+                        populateStockList(data.out_of_stock, 'out-stock-list');
+                    });
+            
+                function populateStockList(stockData, listId) {
+                    const list = document.getElementById(listId);
+                    list.innerHTML = '';
+                    stockData.forEach(item => {
+                        const li = document.createElement('li');
+                        li.innerHTML = `
+                            <a href="/inventory/${item.id}" class="inventory-item-link">
+                                <div class="inventory-item">
+                                    <img src="${item.image}" alt="${item.name}" class="inventory-item-img">
+                                    <span class="inventory-item-name">${item.name}</span>
+                                </div>
+                            </a>`;
+                        list.appendChild(li);
+                    });
+                }
+            
+                const searchInput = document.getElementById('search-input');
+                const container = document.querySelector('.main-content') || document.body;
+            
+                // Create search results container once
+                const searchResultsDiv = document.createElement('div');
+                searchResultsDiv.classList.add('search-results');
+                container.appendChild(searchResultsDiv);
+            
+                searchInput.addEventListener('input', (event) => {
+                    const query = event.target.value.trim().toLowerCase();
+            
+                    if (!query) {
+                        searchResultsDiv.innerHTML = '';
+                        searchResultsDiv.style.display = 'none';
+                        return;
+                    }
+            
+                    const searchResults = inventoryData.filter(item =>
+                        item.name.toLowerCase().includes(query)
+                    );
+            
+                    displaySearchResults(searchResults);
+                });
+            
+                function displaySearchResults(results) {
+                    searchResultsDiv.innerHTML = '';
+                    searchResultsDiv.style.display = 'grid';
+            
+                    if (results.length > 0) {
+                        results.forEach(item => {
+                            const div = document.createElement('div');
+                            div.classList.add('stat-card');
+                            div.innerHTML = `
+                                <img src="${item.image}" alt="${item.name}" class="inventory-item-img">
+                                <div>
+                                    <h3>${item.name}</h3>
+                                    <p>Stock: ${item.stock}</p>
+                                    <p>Status: ${item.stock > 0 ? 'In Stock' : 'Out of Stock'}</p>
+                                </div>`;
+                            searchResultsDiv.appendChild(div);
+                        });
+                    } else {
+                        searchResultsDiv.innerHTML = '<p>No matching medicines found.</p>';
+                    }
+                }
+            });
+            </script>
+            
+    </div>
+</body>
+</html>
