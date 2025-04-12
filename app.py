@@ -7,6 +7,7 @@ app = Flask(__name__, static_folder='static', template_folder='templates')
 # ---------------------------
 # Sample Datasets
 # ---------------------------
+
 ORDERS = [
     {"order_id": "#1023", "customer": "John Doe", "date": "2025-03-15", "status": "Completed", "total": "$120"},
     {"order_id": "#1024", "customer": "Jane Smith", "date": "2025-03-16", "status": "Pending", "total": "$80"},
@@ -86,8 +87,7 @@ def get_order_chart():
     for i in range(7):
         day = today - timedelta(days=6 - i)
         labels.append(day.strftime('%b %d'))
-        data.append(20 + i * 5)  # Dummy values
-
+        data.append(20 + i * 5)
     return jsonify({"labels": labels, "data": data})
 
 @app.route('/inventory')
@@ -146,7 +146,59 @@ def search_customers():
     ]
     return jsonify(results)
 
-# Other pages
+# ---------------------------
+# New Sales Routes
+# ---------------------------
+
+def get_total_sales():
+    # In a real scenario, you would query the database for the total sales value
+    return 150000  # Example total sales (₹)
+
+def get_total_orders():
+    # In a real scenario, you would query the database to count the total number of orders
+    return 250  # Example total orders
+
+def get_sales_breakdown():
+    # In a real scenario, this data would be fetched from the database
+    # Here we are creating dummy data for the sales breakdown
+    return [
+        {"product": "Aspirin", "quantity": 50, "revenue": 5000, "margin": 20},
+        {"product": "Paracetamol", "quantity": 30, "revenue": 3000, "margin": 25},
+        {"product": "Ibuprofen", "quantity": 70, "revenue": 7000, "margin": 18},
+        {"product": "Cough Syrup", "quantity": 40, "revenue": 4000, "margin": 15},
+        {"product": "Antibiotics", "quantity": 60, "revenue": 6000, "margin": 22},
+    ]
+
+@app.route('/sales')
+def sales():
+    # Fetch sales data from the database (using sample values for now)
+    total_sales = get_total_sales()  # Total revenue from sales
+    total_orders = get_total_orders()  # Number of orders
+    
+    # Calculate average order value
+    if total_orders > 0:
+        average_order_value = total_sales / total_orders
+    else:
+        average_order_value = 0
+
+    # Get sales breakdown (product, quantity sold, revenue, profit margin)
+    sales_breakdown = get_sales_breakdown()
+    labels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun']
+    data = [3200, 4500, 5000, 6100, 7200, 8000]
+
+    # Pass the data to the template
+    return render_template('sales.html', 
+                       total_sales=total_sales, 
+                       average_order_value=average_order_value, 
+                       sales_breakdown=sales_breakdown,
+                       chart_data={"labels": labels, "data": data})
+
+
+    
+
+# ---------------------------
+# Other Pages
+# ---------------------------
 @app.route('/delivery')
 def delivery():
     return render_template('delivery.html')
@@ -155,13 +207,19 @@ def delivery():
 def notification():
     return render_template('notification.html')
 
+@app.route('/api/notification')
+def get_notification():
+    alerts = []
+    for item in inventory_data:
+        if item["stock"] == 0:
+            alerts.append(f"{item['name']} is out of stock.")
+        elif datetime.strptime(item["expires"], "%Y-%m-%d") < datetime.now() + timedelta(days=15):
+            alerts.append(f"{item['name']} is expiring soon on {item['expires']}.")
+    return jsonify(alerts)
+
 @app.route('/offers')
 def offers():
     return render_template('offers.html')
-
-@app.route('/sales')
-def sales():
-    return render_template('sales.html')
 
 @app.route('/account')
 def account():
