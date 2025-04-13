@@ -78,32 +78,6 @@ notifications_data = [
 ]
 
 
-USER_DATA = {
-    'user1': {
-        'name': 'John Doe',
-        'email': 'john@example.com',
-        'phone': '1234567890',
-        'position': 'Manager',
-        'profile_image': '',
-        'password': 'Password123!',
-        'preferences': {
-            'email_notifications': True,
-            'browser_notifications': False,
-            'sms_notifications': True,
-            'dark_mode': False,
-            'auto_refresh': True
-        },
-        'security': {
-            'sms_auth': True,
-            'email_auth': False
-        },
-        'activity_log': ["Logged in", "Viewed Dashboard", "Updated Preferences"]
-    }
-}
-
-UPLOAD_FOLDER = 'static/uploads'
-os.makedirs(UPLOAD_FOLDER, exist_ok=True)
-
 # ---------------------------
 # Routes
 # ---------------------------
