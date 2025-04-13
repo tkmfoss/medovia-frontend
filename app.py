@@ -43,6 +43,39 @@ inventory_data = [
     {"id": 15, "name": "Simvastatin", "desc": "Cholesterol medication", "batch": "O515", "expires": "2025-12-01", "stock": 13, "image": "/static/simvastatin.png"}
 ]
 
+# New delivery dataset
+delivery_data = [
+    {"order_id": "#1034", "customer": "John Doe", "status": "Completed", "expected_date": "2025-03-15", "driver": "Mike Johnson"},
+    {"order_id": "#1035", "customer": "Jane Smith", "status": "Pending", "expected_date": "2025-03-18", "driver": "Sarah Williams"},
+    {"order_id": "#1036", "customer": "Robert Brown", "status": "Completed", "expected_date": "2025-03-14", "driver": "David Thompson"},
+    {"order_id": "#1037", "customer": "Emma Davis", "status": "Failed", "expected_date": "2025-03-16", "driver": "Mike Johnson"},
+    {"order_id": "#1038", "customer": "Michael Wilson", "status": "Completed", "expected_date": "2025-03-17", "driver": "Lisa Martinez"},
+    {"order_id": "#1039", "customer": "Olivia Taylor", "status": "Pending", "expected_date": "2025-03-19", "driver": "David Thompson"},
+    {"order_id": "#1040", "customer": "William Miller", "status": "Completed", "expected_date": "2025-03-15", "driver": "Sarah Williams"},
+    {"order_id": "#1041", "customer": "Sophia Anderson", "status": "Completed", "expected_date": "2025-03-16", "driver": "Mike Johnson"},
+    {"order_id": "#1042", "customer": "James Jackson", "status": "Failed", "expected_date": "2025-03-17", "driver": "Lisa Martinez"},
+    {"order_id": "#1043", "customer": "Emily White", "status": "Pending", "expected_date": "2025-03-20", "driver": "David Thompson"}
+]
+
+# New offers dataset
+offers_data = [
+    {"id": 1, "name": "Summer Sale", "discount": 20, "expiry_date": "2025-06-30", "description": "Flat 20% off on all medicines.", "status": "Active"},
+    {"id": 2, "name": "Festive Discount", "discount": 15, "expiry_date": "2025-04-15", "description": "Limited time 15% discount on selected items.", "status": "Expiring Soon"},
+    {"id": 3, "name": "Health Pack Offer", "discount": 10, "expiry_date": "2025-05-20", "description": "10% discount on health supplement packs.", "status": "Active"},
+    {"id": 4, "name": "Winter Special", "discount": 25, "expiry_date": "2025-02-28", "description": "25% off on winter health essentials.", "status": "Expired"}
+]
+
+# New notifications dataset
+notifications_data = [
+    {"id": 1, "type": "alert", "message": "Ibuprofen inventory is running low", "created_at": datetime.now() - timedelta(days=2), "is_unread": True, "icon": "🚨"},
+    {"id": 2, "type": "promo", "message": "New Summer Sale promotion added", "created_at": datetime.now() - timedelta(days=1), "is_unread": True, "icon": "🎉"},
+    {"id": 3, "type": "update", "message": "System maintenance scheduled for tonight", "created_at": datetime.now() - timedelta(hours=12), "is_unread": True, "icon": "📢"},
+    {"id": 4, "type": "alert", "message": "Paracetamol stock is critically low", "created_at": datetime.now() - timedelta(hours=8), "is_unread": False, "icon": "🚨"},
+    {"id": 5, "type": "update", "message": "Dashboard reports updated", "created_at": datetime.now() - timedelta(hours=5), "is_unread": True, "icon": "📢"},
+    {"id": 6, "type": "promo", "message": "Flash sale starting in 2 hours", "created_at": datetime.now() - timedelta(hours=2), "is_unread": False, "icon": "🎉"},
+    {"id": 7, "type": "alert", "message": "Cough Syrup is out of stock", "created_at": datetime.now() - timedelta(hours=1), "is_unread": True, "icon": "🚨"}
+]
+
 # ---------------------------
 # Routes
 # ---------------------------
@@ -147,7 +180,7 @@ def search_customers():
     return jsonify(results)
 
 # ---------------------------
-# New Sales Routes
+# Sales Routes
 # ---------------------------
 
 def get_total_sales():
@@ -193,38 +226,280 @@ def sales():
                        sales_breakdown=sales_breakdown,
                        chart_data={"labels": labels, "data": data})
 
+# ---------------------------
+# Delivery Routes
+# ---------------------------
 
+@app.route('/delivery')
+def delivery():
+    # Get delivery statistics
+    total_deliveries = len(delivery_data)
+    completed_deliveries = sum(1 for d in delivery_data if d["status"] == "Completed")
+    pending_deliveries = sum(1 for d in delivery_data if d["status"] == "Pending")
+    failed_deliveries = sum(1 for d in delivery_data if d["status"] == "Failed")
     
+    delivery_stats = {
+        "total": total_deliveries,
+        "completed": completed_deliveries,
+        "pending": pending_deliveries,
+        "failed": failed_deliveries
+    }
+    
+    # Count notifications for the header
+    notification_count = sum(1 for n in notifications_data if n["is_unread"])
+    
+    return render_template('delivery.html', 
+                          delivery_stats=delivery_stats,
+                          deliveries=delivery_data,
+                          notification_count=notification_count)
+
+@app.route('/api/delivery/chart-data')
+def delivery_chart_data():
+    # Get the last 7 days
+    today = datetime.now()
+    labels = []
+    data = []
+    
+    # Create sample delivery data for last 7 days
+    # In real app, would be from database
+    for i in range(7):
+        day = today - timedelta(days=6-i)
+        labels.append(day.strftime('%b %d'))
+        # Generate some random but consistent data
+        data.append(30 + (i * 10) + (i % 3 * 5))
+    
+    return jsonify({
+        "labels": labels,
+        "data": data
+    })
+
+@app.route('/api/delivery')
+def api_delivery():
+    return jsonify(delivery_data)
+
+# ---------------------------
+# Offers Routes
+# ---------------------------
+
+@app.route('/offers')
+def offers():
+    # Update offer statuses based on expiry dates
+    today = datetime.now().date()
+    notification_count = sum(1 for n in notifications_data if n["is_unread"])
+    
+    for offer in offers_data:
+        expiry = datetime.strptime(offer["expiry_date"], "%Y-%m-%d").date()
+        if expiry < today:
+            offer["status"] = "Expired"
+        elif (expiry - today).days <= 15:
+            offer["status"] = "Expiring Soon"
+    
+    active_offers = [offer for offer in offers_data if offer["status"] == "Active"]
+    expiring_offers = [offer for offer in offers_data if offer["status"] == "Expiring Soon"]
+    expired_offers = [offer for offer in offers_data if offer["status"] == "Expired"]
+    
+    return render_template('offers.html', 
+                          active_offers=active_offers,
+                          expiring_offers=expiring_offers,
+                          expired_offers=expired_offers,
+                          notification_count=notification_count)
+
+@app.route('/api/offers')
+def api_offers():
+    return jsonify(offers_data)
+
+@app.route('/api/offers/add', methods=['POST'])
+def add_offer():
+    data = request.get_json()
+    
+    # Validate required fields
+    if not all(key in data for key in ["name", "discount", "expiry_date", "description"]):
+        return jsonify({"status": "error", "message": "Missing required fields"}), 400
+    
+    # Create new offer ID
+    new_id = max(offer["id"] for offer in offers_data) + 1
+    
+    # Determine status based on expiry date
+    today = datetime.now().date()
+    expiry = datetime.strptime(data["expiry_date"], "%Y-%m-%d").date()
+    
+    if expiry < today:
+        status = "Expired"
+    elif (expiry - today).days <= 15:
+        status = "Expiring Soon"
+    else:
+        status = "Active"
+    
+    # Create new offer
+    new_offer = {
+        "id": new_id,
+        "name": data["name"],
+        "discount": data["discount"],
+        "expiry_date": data["expiry_date"],
+        "description": data["description"],
+        "status": status
+    }
+    
+    # Add to dataset
+    offers_data.append(new_offer)
+    
+    return jsonify({"status": "success", "offer": new_offer})
+
+# ---------------------------
+# Notification Routes
+# ---------------------------
+
+def get_time_ago(notification_date):
+    """Calculate time ago string for notifications"""
+    now = datetime.now()
+    delta = now - notification_date
+    
+    if delta.days > 0:
+        return f"{delta.days} day{'s' if delta.days > 1 else ''} ago"
+    elif delta.seconds >= 3600:
+        hours = delta.seconds // 3600
+        return f"{hours} hour{'s' if hours > 1 else ''} ago"
+    elif delta.seconds >= 60:
+        minutes = delta.seconds // 60
+        return f"{minutes} minute{'s' if minutes > 1 else ''} ago"
+    else:
+        return "just now"
+
+@app.route('/notification')
+def notification():
+    # Count notifications by type
+    alert_count = sum(1 for n in notifications_data if n["type"] == "alert")
+    promo_count = sum(1 for n in notifications_data if n["type"] == "promo")
+    update_count = sum(1 for n in notifications_data if n["type"] == "update")
+    
+    # Count unread notifications
+    notification_count = sum(1 for n in notifications_data if n["is_unread"])
+    
+    # Format notifications for display
+    notifications = []
+    for n in notifications_data:
+        notifications.append({
+            "id": n["id"],
+            "type": n["type"],
+            "message": n["message"],
+            "icon": n["icon"],
+            "is_unread": n["is_unread"],
+            "time_ago": get_time_ago(n["created_at"])
+        })
+    
+    return render_template('notification.html',
+                          notifications=notifications,
+                          notification_count=notification_count,
+                          alert_count=alert_count,
+                          promo_count=promo_count,
+                          update_count=update_count)
+
+@app.route('/api/notification/count')
+def get_notification_count():
+    """Returns the count of unread notifications"""
+    unread_count = sum(1 for n in notifications_data if n["is_unread"])
+    return jsonify({"count": unread_count})
+
+@app.route('/api/notification/categories')
+def get_notification_categories():
+    """Returns the count of notifications by category"""
+    alert_count = sum(1 for n in notifications_data if n["type"] == "alert")
+    promo_count = sum(1 for n in notifications_data if n["type"] == "promo")
+    update_count = sum(1 for n in notifications_data if n["type"] == "update")
+    
+    return jsonify({
+        "alert_count": alert_count,
+        "promo_count": promo_count,
+        "update_count": update_count
+    })
+
+@app.route('/api/notification/mark-read/<int:notification_id>', methods=['POST'])
+def mark_notification_read(notification_id):
+    """Mark a notification as read"""
+    for notification in notifications_data:
+        if notification["id"] == notification_id:
+            notification["is_unread"] = False
+            return jsonify({"status": "success"})
+    
+    return jsonify({"status": "error", "message": "Notification not found"}), 404
+
+@app.route('/api/notification/delete/<int:notification_id>', methods=['DELETE'])
+def delete_notification(notification_id):
+    """Delete a notification"""
+    global notifications_data
+    
+    initial_length = len(notifications_data)
+    notifications_data = [n for n in notifications_data if n["id"] != notification_id]
+    
+    if len(notifications_data) < initial_length:
+        return jsonify({"status": "success"})
+    else:
+        return jsonify({"status": "error", "message": "Notification not found"}), 404
+
+@app.route('/api/notification/clear-all', methods=['DELETE'])
+def clear_all_notifications():
+    """Clear all notifications"""
+    global notifications_data
+    notifications_data = []
+    return jsonify({"status": "success"})
+
+@app.route('/api/notification/add', methods=['POST'])
+def add_notification():
+    """Add a new notification"""
+    data = request.get_json()
+    
+    # Validate required fields
+    if not all(key in data for key in ["type", "message"]):
+        return jsonify({"status": "error", "message": "Missing required fields"}), 400
+    
+    # Set icon based on notification type
+    icon = "📢"  # Default icon
+    if data["type"] == "alert":
+        icon = "🚨"
+    elif data["type"] == "promo":
+        icon = "🎉"
+    
+    # Create new notification ID
+    new_id = 1
+    if notifications_data:
+        new_id = max(n["id"] for n in notifications_data) + 1
+    
+    # Create new notification
+    new_notification = {
+        "id": new_id,
+        "type": data["type"],
+        "message": data["message"],
+        "created_at": datetime.now(),
+        "is_unread": True,
+        "icon": icon
+    }
+    
+    # Add target field if provided
+    if "target" in data:
+        new_notification["target"] = data["target"]
+    
+    # Add to dataset
+    notifications_data.append(new_notification)
+    
+    # Format for response
+    response_notification = {
+        "id": new_notification["id"],
+        "type": new_notification["type"],
+        "message": new_notification["message"],
+        "icon": new_notification["icon"],
+        "is_unread": new_notification["is_unread"],
+        "time_ago": "just now"
+    }
+    
+    return jsonify({"status": "success", "notification": response_notification})
 
 # ---------------------------
 # Other Pages
 # ---------------------------
-@app.route('/delivery')
-def delivery():
-    return render_template('delivery.html')
-
-@app.route('/notification')
-def notification():
-    return render_template('notification.html')
-
-@app.route('/api/notification')
-def get_notification():
-    alerts = []
-    for item in inventory_data:
-        if item["stock"] == 0:
-            alerts.append(f"{item['name']} is out of stock.")
-        elif datetime.strptime(item["expires"], "%Y-%m-%d") < datetime.now() + timedelta(days=15):
-            alerts.append(f"{item['name']} is expiring soon on {item['expires']}.")
-    return jsonify(alerts)
-
-@app.route('/offers')
-def offers():
-    return render_template('offers.html')
 
 @app.route('/account')
 def account():
     return render_template('account.html')
-
 
 if __name__ == '__main__':
     app.run(debug=True)
