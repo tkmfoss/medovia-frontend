@@ -1,6 +1,5 @@
 import os
-from flask import Flask, render_template, request, jsonify, session, redirect, send_file
-from werkzeug.utils import secure_filename
+from flask import Flask, render_template, request, jsonify, redirect, url_for
 from datetime import datetime, timedelta
 
 app = Flask(__name__, static_folder='static', template_folder='templates')
@@ -76,7 +75,6 @@ notifications_data = [
     {"id": 6, "type": "promo", "message": "Flash sale starting in 2 hours", "created_at": datetime.now() - timedelta(hours=2), "is_unread": False, "icon": "🎉"},
     {"id": 7, "type": "alert", "message": "Cough Syrup is out of stock", "created_at": datetime.now() - timedelta(hours=1), "is_unread": True, "icon": "🚨"}
 ]
-
 
 # ---------------------------
 # Routes
