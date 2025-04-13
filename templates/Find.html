@@ -42,13 +42,15 @@
         </div>
 
         <!-- Category filters -->
-        <div class="category-filters">
-            <button class="category-btn active" data-category="all">All</button>
-            <button class="category-btn" data-category="painkillers">Painkillers</button>
-            <button class="category-btn" data-category="antibiotics">Antibiotics</button>
-            <button class="category-btn" data-category="equipment">Equipment</button>
+        <div id="category-filters" class="category-filters">
+            <!-- Category buttons will come here dynamically -->
         </div>
+        
 
+        
+
+
+        
         <div class="categories">
             <div>
                 <img src="static/images/Picture2.png" alt="Hard to find medicines">
@@ -60,10 +62,12 @@
             </div>
         </div>
 
-        <div id="product-grid" class="product-grid">
-            <!-- Products will be dynamically loaded here -->
+        <div id="product-grid" class="product-list">
+            <!-- Products will come here dynamically -->
         </div>
     </div>
+
+    <!-- Include the JS file at the end of the body -->
     <script src="static/js/product-catalog.js"></script>
 </body>
 
