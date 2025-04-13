@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Account - Medovia</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-blue: #1E40AF;
+            --background-gray: #F3F4F6;
+            --text-dark: #1F2937;
+            --white: #FFFFFF;
+            --red: #DC2626;
+            --green: #22C55E;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: var(--background-gray);
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Header */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            background-color: var(--white);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .header .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary-blue);
+        }
+
+        /* Sidebar */
+        .dashboard-container {
+            display: flex;
+        }
+
+        .sidebar {
+            width: 250px;
+            background-color: var(--primary-blue);
+            color: white;
+            height: 100vh;
+            padding-top: 20px;
+            position: fixed;
+            transition: width 0.3s ease;
+            overflow: hidden;
+        }
+
+        .sidebar.collapsed {
+            width: 80px;
+        }
+
+        .sidebar-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .sidebar-item i {
+            margin-right: 15px;
+        }
+
+        .sidebar-item:hover {
+            background-color: rgba(255,255,255,0.1);
+        }
+
+        .sidebar.collapsed .sidebar-item span {
+            display: none;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: 260px;
+            padding: 20px;
+            transition: margin-left 0.3s ease;
+            flex-grow: 1;
+        }
+
+        .sidebar.collapsed + .main-content {
+            margin-left: 100px;
+        }
+
+        /* Profile Section */
+        .account-container {
+            background-color: var(--white);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            max-width: 600px;
+            margin: auto;
+        }
+
+        .account-container h2 {
+            margin-bottom: 15px;
+            color: var(--primary-blue);
+        }
+
+        .account-container label {
+            font-weight: bold;
+            display: block;
+            margin-top: 10px;
+        }
+
+        .account-container input {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        .account-container button {
+            width: 100%;
+            padding: 10px;
+            margin-top: 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .save-btn {
+            background-color: var(--green);
+            color: var(--white);
+        }
+
+        .save-btn:hover {
+            background-color: #15803D;
+        }
+
+        .logout-btn {
+            background-color: var(--red);
+            color: var(--white);
+        }
+
+        .logout-btn:hover {
+            background-color: #a00;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo">
+            <img src="{{ url_for('static', filename='Medovialogo.svg') }}" style="height: auto; width: 60%" alt="Medovia">
+        </div>
+        <div class="user-info">
+            <span>Welcome, Admin</span>
+            <input type="text" placeholder="Search...">
+            <div class="notifications">
+                <i class="fas fa-bell"></i>
+                <span class="notification-count">2 New</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="dashboard-container">
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-content"></div>
+        
+            <div class="sidebar-item active" onclick="location.href='/dashboard'">
+                <i class="fas fa-home"></i>
+                <span>Dashboard</span>
+            </div>
+            <div class="sidebar-item" onclick="location.href='/orders'">
+                <i class="fas fa-shopping-cart"></i>
+                <span>Orders</span>
+            </div>
+            <div class="sidebar-item" onclick="location.href='/inventory'">
+                <i class="fas fa-box"></i>
+                <span>Inventory</span>
+            </div>
+            <div class="sidebar-item" onclick="location.href='/customer'">
+                <i class="fas fa-users"></i>
+                <span>Customer</span>
+            </div>
+            <div class="sidebar-item" onclick="location.href='/sales'">
+                <i class="fas fa-dollar-sign"></i>
+                <span>Sales</span>
+            </div>
+            <div class="sidebar-item" onclick="location.href='/delivery'">
+                <i class="fas fa-truck"></i>
+                <span>Delivery</span>
+            </div>
+            <div class="sidebar-item" onclick="location.href='/offers'">
+                <i class="fas fa-tags"></i>
+                <span>Offers</span>
+            </div>
+            <div class="sidebar-item" onclick="location.href='/notification'">
+                <i class="fas fa-bell"></i>
+                <span>Notifications</span>
+            </div>
+            <div class="sidebar-item" onclick="location.href='/account'">
+                <i class="fas fa-cog"></i>
+                <span>Account</span>
+            </div>
+            <div class="sidebar-item" onclick="location.href='/'">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Logout</span>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="account-container">
+                <h2>Account Settings</h2>
+
+                <label for="name">Name</label>
+                <input type="text" id="name" value="Admin Name">
+
+                <label for="email">Email</label>
+                <input type="email" id="email" value="admin@example.com">
+
+                <label for="phone">Phone</label>
+                <input type="text" id="phone" value="+1234567890">
+
+                <h3>Change Password</h3>
+                <label for="old-password">Old Password</label>
+                <input type="password" id="old-password">
+
+                <label for="new-password">New Password</label>
+                <input type="password" id="new-password">
+
+                <label for="confirm-password">Confirm Password</label>
+                <input type="password" id="confirm-password">
+
+                <button class="save-btn" onclick="saveChanges()">Save Changes</button>
+                <button class="logout-btn" onclick="logout()">Logout</button>
+            </div>
+        </div>
+    </div>
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+    <script>
+        
+        function saveChanges() {
+            let name = document.getElementById("name").value;
+            let email = document.getElementById("email").value;
+            let phone = document.getElementById("phone").value;
+
+            let oldPass = document.getElementById("old-password").value;
+            let newPass = document.getElementById("new-password").value;
+            let confirmPass = document.getElementById("confirm-password").value;
+
+            if (newPass && newPass !== confirmPass) {
+                alert("New passwords do not match!");
+                return;
+            }
+
+            alert("Profile updated successfully!");
+        }
+
+        function logout() {
+            let confirmLogout = confirm("Are you sure you want to log out?");
+            if (confirmLogout) {
+                window.location.href = "login.html"; // Redirect to login page
+            }
+        }
+    </script>
+</body>
+</html>

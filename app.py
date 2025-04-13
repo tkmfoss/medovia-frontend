@@ -1,5 +1,6 @@
 import os
-from flask import Flask, render_template, request, jsonify, redirect, url_for
+from flask import Flask, render_template, request, jsonify, session, redirect, send_file
+from werkzeug.utils import secure_filename
 from datetime import datetime, timedelta
 
 app = Flask(__name__, static_folder='static', template_folder='templates')
@@ -75,6 +76,33 @@ notifications_data = [
     {"id": 6, "type": "promo", "message": "Flash sale starting in 2 hours", "created_at": datetime.now() - timedelta(hours=2), "is_unread": False, "icon": "🎉"},
     {"id": 7, "type": "alert", "message": "Cough Syrup is out of stock", "created_at": datetime.now() - timedelta(hours=1), "is_unread": True, "icon": "🚨"}
 ]
+
+
+USER_DATA = {
+    'user1': {
+        'name': 'John Doe',
+        'email': 'john@example.com',
+        'phone': '1234567890',
+        'position': 'Manager',
+        'profile_image': '',
+        'password': 'Password123!',
+        'preferences': {
+            'email_notifications': True,
+            'browser_notifications': False,
+            'sms_notifications': True,
+            'dark_mode': False,
+            'auto_refresh': True
+        },
+        'security': {
+            'sms_auth': True,
+            'email_auth': False
+        },
+        'activity_log': ["Logged in", "Viewed Dashboard", "Updated Preferences"]
+    }
+}
+
+UPLOAD_FOLDER = 'static/uploads'
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 # ---------------------------
 # Routes
