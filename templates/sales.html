@@ -47,34 +47,42 @@
       transition: width 0.3s ease;
       overflow: hidden;
     }
+    
     .sidebar.collapsed {
-      width: 80px;
+        width: 80px;
     }
+    
     .sidebar-item {
-      display: flex;
-      align-items: center;
-      padding: 12px 20px;
-      cursor: pointer;
-      transition: background-color 0.2s;
+        display: flex;
+        align-items: center;
+        padding: 12px 20px;
+        cursor: pointer;
+        transition: background-color 0.2s;
     }
+    
     .sidebar-item i {
-      margin-right: 15px;
+        margin-right: 15px;
     }
+    
     .sidebar-item:hover {
-      background-color: rgba(255,255,255,0.1);
+        background-color: rgba(255,255,255,0.1);
     }
+    
     .sidebar.collapsed .sidebar-item span {
-      display: none;
+        display: none;
     }
+    
     .main-content {
-      margin-left: 260px;
-      padding: 20px;
-      transition: margin-left 0.3s ease;
-      flex-grow: 1;
+        margin-left: 260px;
+        padding: 20px;
+        transition: margin-left 0.3s ease;
+        flex-grow: 1;
     }
+    
     .sidebar.collapsed + .main-content {
-      margin-left: 100px;
+        margin-left: 100px;
     }
+
     .sales-stats {
       display: flex;
       justify-content: space-between;
@@ -141,37 +149,49 @@
 
   <div class="dashboard-container">
     <div class="sidebar" id="sidebar">
-      <div class="sidebar-item" onclick="location.href='/dashboard'">
-        <i class="fas fa-home"></i><span>Dashboard</span>
+      <div class="sidebar-content"></div>
+
+      <div class="sidebar-item active" onclick="location.href='/dashboard'">
+          <i class="fas fa-home"></i>
+          <span>Dashboard</span>
       </div>
       <div class="sidebar-item" onclick="location.href='/orders'">
-        <i class="fas fa-shopping-cart"></i><span>Orders</span>
+          <i class="fas fa-shopping-cart"></i>
+          <span>Orders</span>
       </div>
       <div class="sidebar-item" onclick="location.href='/inventory'">
-        <i class="fas fa-box"></i><span>Inventory</span>
+          <i class="fas fa-box"></i>
+          <span>Inventory</span>
       </div>
       <div class="sidebar-item" onclick="location.href='/customer'">
-        <i class="fas fa-users"></i><span>Customer</span>
+          <i class="fas fa-users"></i>
+          <span>Customer</span>
       </div>
-      <div class="sidebar-item active" onclick="location.href='/sales'">
-        <i class="fas fa-dollar-sign"></i><span>Sales</span>
+      <div class="sidebar-item" onclick="location.href='/sales'">
+          <i class="fas fa-dollar-sign"></i>
+          <span>Sales</span>
       </div>
       <div class="sidebar-item" onclick="location.href='/delivery'">
-        <i class="fas fa-truck"></i><span>Delivery</span>
+          <i class="fas fa-truck"></i>
+          <span>Delivery</span>
       </div>
       <div class="sidebar-item" onclick="location.href='/offers'">
-        <i class="fas fa-tags"></i><span>Offers</span>
+          <i class="fas fa-tags"></i>
+          <span>Offers</span>
       </div>
       <div class="sidebar-item" onclick="location.href='/notification'">
-        <i class="fas fa-bell"></i><span>Notifications</span>
+          <i class="fas fa-bell"></i>
+          <span>Notifications</span>
       </div>
       <div class="sidebar-item" onclick="location.href='/account'">
-        <i class="fas fa-cog"></i><span>Account</span>
+          <i class="fas fa-cog"></i>
+          <span>Account</span>
       </div>
       <div class="sidebar-item" onclick="location.href='/'">
-        <i class="fas fa-sign-out-alt"></i><span>Logout</span>
+          <i class="fas fa-sign-out-alt"></i>
+          <span>Logout</span>
       </div>
-    </div>
+  </div>
 
     <div class="main-content">
       <h2>Sales Overview</h2>
@@ -221,7 +241,7 @@
       </table>
     </div>
   </div>
-
+  <script src="{{ url_for('static', filename='script.js') }}"></script>
   <script>
     const chartData = {{ chart_data | tojson }};
     const labels = chartData.labels;
