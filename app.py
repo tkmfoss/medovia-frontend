@@ -12,6 +12,11 @@ ORDERS = [
     {"order_id": "#1023", "customer": "John Doe", "date": "2025-03-15", "status": "Completed", "total": "$120"},
     {"order_id": "#1024", "customer": "Jane Smith", "date": "2025-03-16", "status": "Pending", "total": "$80"},
     {"order_id": "#1025", "customer": "Alice Brown", "date": "2025-03-17", "status": "Completed", "total": "$95"},
+    {"order_id": "#1026", "customer": "Mike Davis", "date": "2025-03-18", "status": "Pending", "total": "$60"},
+    {"order_id": "#1026", "customer": "Mike Davis", "date": "2025-03-18", "status": "Pending", "total": "$60"},
+    {"order_id": "#1026", "customer": "Mike Davis", "date": "2025-03-18", "status": "Pending", "total": "$60"},
+    {"order_id": "#1026", "customer": "Mike Davis", "date": "2025-03-18", "status": "Pending", "total": "$60"},
+    {"order_id": "#1026", "customer": "Mike Davis", "date": "2025-03-18", "status": "Pending", "total": "$60"},
     {"order_id": "#1026", "customer": "Mike Davis", "date": "2025-03-18", "status": "Pending", "total": "$60"}
 ]
 

@@ -57,9 +57,9 @@ body {
     width: 250px;
     background-color: var(--primary-blue);
     color: white;
-    height: 100vh;
+    min-height: 100vh;
     padding-top: 20px;
-    position: fixed;
+    /* position: fixed; */
     transition: width 0.3s ease;
     overflow: hidden;
 }
@@ -90,14 +90,14 @@ body {
 
 /* Main Content */
 .main-content {
-    margin-left: 260px;
+    margin-left: 2.5%;
     padding: 20px;
     transition: margin-left 0.3s ease;
     flex-grow: 1;
 }
 
 .sidebar.collapsed + .main-content {
-    margin-left: 100px;
+    margin-left: 2.5%;
 }
 
 
