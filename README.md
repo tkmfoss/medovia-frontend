@@ -58,6 +58,6 @@ The project emphasizes modern UI/UX principles with a collapsible sidebar, respo
 1. Clone the repository:
 
    ```bash
-   git clone https://github.com/your-username/Pharmacy-Dashboard.git
+   git clone https://github.com/Adithyan19/Pharmacy-Dashboard.git
    cd Pharmacy-Dashboard
 
