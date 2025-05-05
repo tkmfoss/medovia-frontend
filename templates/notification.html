@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notifications - Medovia</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-blue: #1E40AF;
+            --background-gray: #F3F4F6;
+            --text-dark: #1F2937;
+            --white: #FFFFFF;
+            --green: #22C55E;
+            --red: #DC2626;
+            --yellow: #EAB308;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: var(--background-gray);
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Header */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            background-color: var(--white);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .header .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary-blue);
+        }
+
+        /* Sidebar */
+        .dashboard-container {
+            display: flex;
+        }
+
+        .sidebar {
+            width: 250px;
+            background-color: var(--primary-blue);
+            color: white;
+            padding-top: 20px;
+            transition: width 0.3s ease;
+            overflow: hidden;
+        }
+
+        .sidebar.collapsed {
+            width: 80px;
+        }
+
+        .sidebar-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .sidebar-item i {
+            margin-right: 15px;
+        }
+
+        .sidebar-item:hover {
+            background-color: rgba(255,255,255,0.1);
+        }
+
+        .sidebar.collapsed .sidebar-item span {
+            display: none;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: 2.5%;
+            padding: 20px;
+            transition: margin-left 0.3s ease;
+            flex-grow: 1;
+        }
+
+        .sidebar.collapsed + .main-content {
+            margin-left: 2.5%;
+        }
+
+        /* Notifications */
+        .notifications-container {
+            background-color: var(--white);
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .notification {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .notification.unread {
+            background-color: #E0F2FE;
+            font-weight: bold;
+        }
+
+        .notification span {
+            flex-grow: 1;
+        }
+
+        .notification button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            margin-left: 10px;
+        }
+
+        .notification button.read {
+            color: var(--green);
+        }
+
+        .notification button.delete {
+            color: var(--red);
+        }
+
+        .filter-buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .filter-buttons button {
+            padding: 8px 12px;
+            border: none;
+            background-color: var(--primary-blue);
+            color: var(--white);
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        .filter-buttons button:hover {
+            background-color: #172a6c;
+        }
+
+        .clear-all {
+            background-color: var(--red);
+            margin-top: 10px;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .clear-all:hover {
+            background-color: #a00;
+        }
+
+        /* Add notification form */
+        .add-notification-form {
+            background-color: var(--white);
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            margin-top: 20px;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        .form-group textarea {
+            height: 100px;
+        }
+
+        .submit-btn {
+            background-color: var(--primary-blue);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .submit-btn:hover {
+            background-color: #172a6c;
+        }
+
+        .notification-categories {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .notification-category {
+            flex: 1;
+            text-align: center;
+            padding: 15px;
+            background-color: var(--white);
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin: 0 5px;
+        }
+
+        .notification-category h3 {
+            margin-top: 0;
+            color: var(--primary-blue);
+        }
+
+        .notification-category p {
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .category-alerts {
+            border-top: 4px solid var(--red);
+        }
+
+        .category-promotions {
+            border-top: 4px solid var(--green);
+        }
+
+        .category-updates {
+            border-top: 4px solid var(--yellow);
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo">
+            <img src="{{ url_for('static', filename='Medovialogo.svg') }}" style="height: auto; width: 60%" alt="Medovia">
+        </div>
+        <div class="user-info">
+            
+            <div class="notifications">
+                <i class="fas fa-bell"></i>
+                <span class="notification-count">{{ notification_count }} New</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="dashboard-container">
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-content"></div>
+        
+            <div class="sidebar-item" onclick="location.href='/dashboard'">
+                <i class="fas fa-home"></i>
+                <span>Dashboard</span>
+            </div>
+            <div class="sidebar-item" onclick="location.href='/orders'">
+                <i class="fas fa-shopping-cart"></i>
+                <span>Orders</span>
+            </div>
+            <div class="sidebar-item" onclick="location.href='/inventory'">
+                <i class="fas fa-box"></i>
+                <span>Inventory</span>
+            </div>
+            <div class="sidebar-item" onclick="location.href='/customer'">
+                <i class="fas fa-users"></i>
+                <span>Customer</span>
+            </div>
+            <div class="sidebar-item" onclick="location.href='/sales'">
+                <i class="fas fa-dollar-sign"></i>
+                <span>Sales</span>
+            </div>
+            <div class="sidebar-item" onclick="location.href='/delivery'">
+                <i class="fas fa-truck"></i>
+                <span>Delivery</span>
+            </div>
+            <div class="sidebar-item" onclick="location.href='/offers'">
+                <i class="fas fa-tags"></i>
+                <span>Offers</span>
+            </div>
+            <div class="sidebar-item active" onclick="location.href='/notification'">
+                <i class="fas fa-bell"></i>
+                <span>Notifications</span>
+            </div>
+            <div class="sidebar-item" onclick="location.href='/account'">
+                <i class="fas fa-cog"></i>
+                <span>Account</span>
+            </div>
+            <div class="sidebar-item" onclick="location.href='/'">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Logout</span>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <h2>Notifications</h2>
+
+            <div class="notification-categories">
+                <div class="notification-category category-alerts">
+                    <h3>Alerts</h3>
+                    <p>{{ alert_count }}</p>
+                </div>
+                <div class="notification-category category-promotions">
+                    <h3>Promotions</h3>
+                    <p>{{ promo_count }}</p>
+                </div>
+                <div class="notification-category category-updates">
+                    <h3>Updates</h3>
+                    <p>{{ update_count }}</p>
+                </div>
+            </div>
+
+            <div class="filter-buttons">
+                <button onclick="filterNotifications('all')">View All</button>
+                <button onclick="filterNotifications('unread')">Unread</button>
+                <button onclick="filterNotifications('alerts')">Alerts</button>
+                <button onclick="filterNotifications('promotions')">Promotions</button>
+                <button onclick="filterNotifications('updates')">Updates</button>
+            </div>
+
+            <div class="notifications-container" id="notificationList">
+                {% for notification in notifications %}
+                <div class="notification {% if notification.is_unread %}unread{% endif %}" data-type="{{ notification.type }}">
+                    <span>{{ notification.icon }} {{ notification.message }} ({{ notification.time_ago }})</span>
+                    {% if notification.is_unread %}
+                    <button class="read" onclick="markAsRead(this, {{ notification.id }})">✔</button>
+                    {% endif %}
+                    <button class="delete" onclick="deleteNotification(this, {{ notification.id }})">✖</button>
+                </div>
+                {% endfor %}
+            </div>
+
+            <button class="clear-all" onclick="clearAll()">Clear All</button>
+
+            <div class="add-notification-form">
+                <h3>Add New Notification</h3>
+                <form id="notificationForm">
+                    <div class="form-group">
+                        <label for="notificationType">Notification Type</label>
+                        <select id="notificationType" name="type" required>
+                            <option value="alert">Alert</option>
+                            <option value="promo">Promotion</option>
+                            <option value="update">Update</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="notificationMessage">Message</label>
+                        <textarea id="notificationMessage" name="message" required placeholder="Enter notification message"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="notificationTarget">Target</label>
+                        <select id="notificationTarget" name="target">
+                            <option value="all">All Users</option>
+                            <option value="customers">Customers Only</option>
+                            <option value="admin">Admin Only</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="submit-btn">Add Notification</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+    <script>
+        // Mark notification as read
+        function markAsRead(button, notificationId) {
+            let notification = button.parentElement;
+            notification.classList.remove('unread');
+            button.remove();
+
+            // Send API request to mark as read
+            fetch(`/api/notification/mark-read/${notificationId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    // Update notification counter in header
+                    updateNotificationCounter();
+                }
+            });
+        }
+
+        // Delete notification
+        function deleteNotification(button, notificationId) {
+            let notification = button.parentElement;
+            notification.remove();
+
+            // Send API request to delete
+            fetch(`/api/notification/delete/${notificationId}`, {
+                method: 'DELETE'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    // Update notification counter in header
+                    updateNotificationCounter();
+                }
+            });
+        }
+
+        // Clear all notifications
+        function clearAll() {
+            document.getElementById('notificationList').innerHTML = "";
+            
+            // Send API request to clear all
+            fetch(`/api/notification/clear-all`, {
+                method: 'DELETE'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    // Update notification counter in header
+                    document.querySelector('.notification-count').textContent = '0 New';
+                }
+            });
+        }
+
+        // Filter notifications by type
+        function filterNotifications(type) {
+            let notifications = document.querySelectorAll(".notification");
+
+            notifications.forEach(notification => {
+                notification.style.display = "flex";
+
+                if (type === "unread" && !notification.classList.contains("unread")) {
+                    notification.style.display = "none";
+                } else if (type === "alerts" && !notification.dataset.type.includes("alert")) {
+                    notification.style.display = "none";
+                } else if (type === "promotions" && !notification.dataset.type.includes("promo")) {
+                    notification.style.display = "none";
+                } else if (type === "updates" && !notification.dataset.type.includes("update")) {
+                    notification.style.display = "none";
+                }
+            });
+        }
+
+        // Update notification counter
+        function updateNotificationCounter() {
+            fetch('/api/notification/count')
+            .then(response => response.json())
+            .then(data => {
+                document.querySelector('.notification-count').textContent = data.count + ' New';
+            });
+        }
+
+        // Add new notification
+        document.getElementById('notificationForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = {
+                type: document.getElementById('notificationType').value,
+                message: document.getElementById('notificationMessage').value,
+                target: document.getElementById('notificationTarget').value
+            };
+            
+            fetch('/api/notification/add', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(formData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    // Add the new notification to the UI
+                    const notificationList = document.getElementById('notificationList');
+                    const newNotification = document.createElement('div');
+                    newNotification.className = 'notification unread';
+                    newNotification.dataset.type = formData.type;
+                    
+                    let icon = '';
+                    if (formData.type === 'alert') icon = '🚨';
+                    else if (formData.type === 'promo') icon = '🎉';
+                    else icon = '📢';
+                    
+                    newNotification.innerHTML = `
+                        <span>${icon} ${formData.message} (just now)</span>
+                        <button class="read" onclick="markAsRead(this, ${data.notification.id})">✔</button>
+                        <button class="delete" onclick="deleteNotification(this, ${data.notification.id})">✖</button>
+                    `;
+                    
+                    notificationList.prepend(newNotification);
+                    
+                    // Reset form
+                    document.getElementById('notificationForm').reset();
+                    
+                    // Update counters
+                    updateNotificationCounter();
+                    
+                    // Refresh category counts
+                    fetch('/api/notification/categories')
+                    .then(response => response.json())
+                    .then(data => {
+                        document.querySelector('.category-alerts p').textContent = data.alert_count;
+                        document.querySelector('.category-promotions p').textContent = data.promo_count;
+                        document.querySelector('.category-updates p').textContent = data.update_count;
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>
